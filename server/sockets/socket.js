@@ -26,6 +26,9 @@ io.on('connection', (client) => {
         // Se disparará al entrar o salir alguien del chat con la relacion de personas en el chat. solo a su sala
         client.broadcast.to(data.sala).emit('listaPersonas', usuarios.getPersonasPorSala(data.sala));
 
+        // mensaje que se unio
+        client.broadcast.to(data.sala).emit('crearMensaje', crearMensaje('Administrador', `${data.nombre} se unió al chat`));
+
         callback(usuarios.getPersonasPorSala(data.sala));
     });
 
@@ -54,10 +57,12 @@ io.on('connection', (client) => {
     // ------------------------------------------------------------------------
     // escuchamos un mensaje del cliente para enviarlo al grupo
     // ------------------------------------------------------------------------
-    client.on('crearMensaje', (data) => {
+    client.on('crearMensaje', (data, callback) => {
         let persona = usuarios.getPersona(client.id);
         let mensaje = crearMensaje(persona.nombre, data.mensaje);
         client.broadcast.to(persona.sala).emit('crearMensaje', mensaje);
+
+        callback(mensaje);
     });
 
     // ------------------------------------------------------------------------
